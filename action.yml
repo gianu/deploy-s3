@@ -1,4 +1,4 @@
-name: 'PR Deployment on S3 Website'
+name: 'Deployment on S3 Website on Pull Request'
 description: 'Automatically deploy built PR bundles to an S3 static website.'
 branding:
   icon: 'cloud'
