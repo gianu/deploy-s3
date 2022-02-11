@@ -4,6 +4,7 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import filePathToS3Key from './filePathToS3Key';
 import mimeTypes from 'mime-types';
+import { PutObjectCommand } from '@aws-sdk/client-s3';
 
 export default async (bucketName: string, directory: string) => {
   const normalizedPath = path.normalize(directory);
@@ -20,15 +21,15 @@ export default async (bucketName: string, directory: string) => {
         const fileBuffer = await fs.readFile(filePath);
         const mimeType =
           mimeTypes.lookup(filePath) || 'application/octet-stream';
-
-        await S3.putObject({
+        const putCommand = new PutObjectCommand({
           Bucket: bucketName,
           Key: s3Key,
           Body: fileBuffer,
           ACL: 'public-read',
           ServerSideEncryption: 'AES256',
           ContentType: mimeType
-        }).promise();
+        })
+        await S3.send(putCommand);
       } catch (e) {
         const message = `Failed to upload ${s3Key}: ${e.code} - ${e.message}`;
         console.log(message);
