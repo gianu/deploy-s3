@@ -18,7 +18,7 @@ export const requiredEnvVars = [
 export default async (bucketName: string, uploadDirectory: string, environmentPrefix: string) => {
   const { repo } = github.context;
   const websiteUrl = `http://${bucketName}.s3-website.${process.env.AWS_REGION}.amazonaws.com`;
-  const branchName = github.context.payload.pull_request!.head.ref.toLowerCase();
+  const branchName = github.context.payload.pull_request!.head.ref;
 
   console.log(`Deploying to ${bucketName} at ${process.env.AWS_REGION}`);
   console.log('PR Updated');
