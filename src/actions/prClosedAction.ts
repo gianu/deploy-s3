@@ -1,11 +1,11 @@
-import * as github from "@actions/github";
+import * as github from '@actions/github';
 import S3 from '../s3Client';
-import { DeleteObjectsRequest } from 'aws-sdk/clients/s3';
+import { DeleteBucketCommand, ListObjectsV2Command, DeleteObjectsCommand, DeleteObjectsCommandInput } from '@aws-sdk/client-s3';
 import validateEnvVars from '../utils/validateEnvVars';
 import deactivateDeployments from '../utils/deactivateDeployments';
-import deleteDeployments from "../utils/deleteDeployments";
+import deleteDeployments from '../utils/deleteDeployments';
 
-export const requiredEnvVars = ['AWS_ACCESS_KEY_ID', 'AWS_SECRET_ACCESS_KEY'];
+export const requiredEnvVars = ['AWS_ACCESS_KEY_ID', 'AWS_SECRET_ACCESS_KEY', 'AWS_REGION'];
 
 export default async (bucketName: string, environmentPrefix: string) => {
   const { repo } = github.context;
@@ -15,10 +15,11 @@ export default async (bucketName: string, environmentPrefix: string) => {
   console.log('Emptying S3 bucket...');
 
   console.log('Fetching objects...');
-  const objects = await S3.listObjectsV2({ Bucket: bucketName }).promise();
+  const listCommand = new ListObjectsV2Command({ Bucket: bucketName });
+  const objects = await S3.send(listCommand);
 
   if (objects.Contents && objects.Contents.length >= 1) {
-    const deleteParams: DeleteObjectsRequest = {
+    const deleteParams: DeleteObjectsCommandInput = {
       Bucket: bucketName,
       Delete: {
         Objects: []
@@ -30,14 +31,14 @@ export default async (bucketName: string, environmentPrefix: string) => {
     }
 
     console.log('Deleting objects...');
-    await S3.deleteObjects(deleteParams).promise();
+    const deleteCommand = new DeleteObjectsCommand(deleteParams);
+    await S3.send(deleteCommand);
   } else {
     console.log('S3 bucket already empty.');
   }
 
-  await S3.deleteBucket({ Bucket: bucketName }).promise();
-
-
+  const deleteBucketCommand = new DeleteBucketCommand({ Bucket: bucketName });
+  await S3.send(deleteBucketCommand);
   await deactivateDeployments(repo, environmentPrefix);
   await deleteDeployments(repo, environmentPrefix)
 
