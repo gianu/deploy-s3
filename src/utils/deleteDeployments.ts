@@ -10,7 +10,7 @@ export default async (
 ) => {
   const environment = `${environmentPrefix || 'PR-'}${github.context.payload.pull_request!.number}`;
 
-  const deployments = await githubClient.graphql(`
+  const deployments: any = await githubClient.graphql(`
       query GetDeployments($owner: String!, $repo: String!, $environments: [String!]) {
         repository(owner: $owner, name: $repo) {
           deployments(first: 100, environments: $environments) {

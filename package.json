@@ -1,5 +1,5 @@
 {
-  "name": "s3-website-pr-action",
+  "name": "deploy-s3",
   "version": "1.0.0",
   "description": "",
   "scripts": {
