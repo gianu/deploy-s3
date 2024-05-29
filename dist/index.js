@@ -45532,28 +45532,31 @@ const prClosedAction_1 = __importDefault(__nccwpck_require__(7530));
 const prUpdatedAction_1 = __importDefault(__nccwpck_require__(8092));
 const main = () => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const bucketName = core.getInput('bucket-prefix');
-        const folderToCopy = core.getInput('folder-to-copy');
-        const environmentPrefix = core.getInput('environment-prefix');
+        const bucketName = core.getInput("bucket-prefix");
+        const folderToCopy = core.getInput("folder-to-copy");
+        const environmentPrefix = core.getInput("environment-prefix");
         console.log(`Bucket Name: ${bucketName}`);
+        console.log("---- Printing env variables ----");
+        console.log(process.env);
+        console.log(JSON.stringify(process.env));
         const githubActionType = github.context.payload.action;
-        if (github.context.eventName === 'pull_request') {
+        if (github.context.eventName === "pull_request") {
             switch (githubActionType) {
-                case 'opened':
-                case 'reopened':
-                case 'synchronize':
+                case "opened":
+                case "reopened":
+                case "synchronize":
                     yield prUpdatedAction_1.default(bucketName, folderToCopy, environmentPrefix);
                     break;
-                case 'closed':
+                case "closed":
                     yield prClosedAction_1.default(bucketName, environmentPrefix);
                     break;
                 default:
-                    console.log('PR not created, modified or deleted. Skiping...');
+                    console.log("PR not created, modified or deleted. Skiping...");
                     break;
             }
         }
         else {
-            console.log('Not a PR. Skipping...');
+            console.log("Not a PR. Skipping...");
         }
     }
     catch (error) {
